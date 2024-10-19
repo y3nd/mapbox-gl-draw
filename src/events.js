@@ -19,6 +19,8 @@ export default function(ctx) {
   let currentModeName = null;
   let currentMode = null;
 
+  const enableLog = false;
+
   events.drag = function(event, isDrag) {
     if (isDrag({
       point: event.point,
@@ -32,14 +34,20 @@ export default function(ctx) {
   };
 
   events.mousedrag = function(event) {
+    if(enableLog) console.log('events.mousedrag');
     events.drag(event, endInfo => !isClick(mouseDownInfo, endInfo));
   };
 
   events.touchdrag = function(event) {
+    if(enableLog) console.log('events.touchdrag');
     events.drag(event, endInfo => !isTap(touchStartInfo, endInfo));
   };
 
   events.mousemove = function(event) {
+    if(enableLog) console.log('events.mousemove');
+    if(new Date().getTime() - touchStartInfo.time < 500) return;
+    if(enableLog) console.log('events.mousemove mouse');
+
     const button = event.originalEvent.buttons !== undefined ? event.originalEvent.buttons : event.originalEvent.which;
     if (button === 1) {
       return events.mousedrag(event);
@@ -50,6 +58,10 @@ export default function(ctx) {
   };
 
   events.mousedown = function(event) {
+    if(enableLog) console.log('events.mousedown');
+    if(new Date().getTime() - touchStartInfo.time < 500) return;
+    if(enableLog) console.log('events.mousedown mouse');
+
     mouseDownInfo = {
       time: new Date().getTime(),
       point: event.point
@@ -60,6 +72,10 @@ export default function(ctx) {
   };
 
   events.mouseup = function(event) {
+    if(enableLog) console.log('events.mouseup');
+    if(new Date().getTime() - touchStartInfo.time < 500) return;
+    if(enableLog) console.log('events.mouseup mouse');
+
     const target = getFeaturesAndSetCursor(event, ctx);
     event.featureTarget = target;
 
@@ -74,14 +90,13 @@ export default function(ctx) {
   };
 
   events.mouseout = function(event) {
+    if(enableLog) console.log('events.mouseout');
+
     currentMode.mouseout(event);
   };
 
   events.touchstart = function(event) {
-    if (!ctx.options.touchEnabled) {
-      return;
-    }
-
+    if(enableLog) console.log('events.touchstart');
     touchStartInfo = {
       time: new Date().getTime(),
       point: event.point
@@ -92,6 +107,7 @@ export default function(ctx) {
   };
 
   events.touchmove = function(event) {
+    if(enableLog) console.log('events.touchmove');
     if (!ctx.options.touchEnabled) {
       return;
     }
@@ -101,9 +117,10 @@ export default function(ctx) {
   };
 
   events.touchend = function(event) {
+    if(enableLog) console.log('events.touchend');
     // Prevent emulated mouse events because we will fully handle the touch here.
     // This does not stop the touch events from propogating to mapbox though.
-    event.originalEvent.preventDefault();
+    //event.originalEvent.preventDefault();
     if (!ctx.options.touchEnabled) {
       return;
     }
